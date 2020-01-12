@@ -1,2 +1,1 @@
-# StudyProjects
-sss
+# Study Projects
