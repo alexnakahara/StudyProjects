@@ -11,13 +11,13 @@ class UserController {
         this.formEl.addEventListener("submit", submit => {
             submit.preventDefault();
 
-            let values = this.getValues();
-
             let btn = this.formEl.querySelector("[type=submit]");
- 
+
             btn.disabled = true;
 
+            let values = this.getValues();
 
+            if (!values) { return false; }
 
             this.getPhoto().then(
                 (content) => {
@@ -79,9 +79,15 @@ class UserController {
 
     getValues() {
         let user = {};
-
+        let isValid = true;
         //Spread
         [...this.formEl.elements].forEach(item => {
+            if (["name", "email", "password"].indexOf(item.name) > -1 && !item.value) {
+
+                item.parentElement.classList.add("has-error");
+                isValid = false;
+
+            }
             if (item.name == "gender") {
 
                 if (item.checked) {
@@ -99,6 +105,8 @@ class UserController {
             }
 
         });
+
+        if (!isValid) { return false; }
 
         return new User(
             user.name,
