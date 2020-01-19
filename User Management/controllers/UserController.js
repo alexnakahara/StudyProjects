@@ -9,14 +9,12 @@ class UserController {
     }
 
     onEdit() {
-        const btnCancelar = document.querySelector("#box-user-update .btn-cancel");
-        if (btnCancelar) {
 
-            btnCancelar.addEventListener("click", e => {
+        document.querySelector("#box-user-update .btn-cancel").addEventListener("click", e => {
 
-                this.showPanelCreate();
-            });
-        }
+            this.showPanelCreate();
+        });
+
 
         this.formUpdateEl.addEventListener("submit", ev => {
             ev.preventDefault(); //cancela o comportamento padrão do form, não vai atualizar a pagina
@@ -41,11 +39,11 @@ class UserController {
 
                         result._photo = userOld._photo;
 
-                    }else {
+                    } else {
 
                         result._photo = content;
                     }
-                    
+
                     tr.dataset.user = JSON.stringify(result);
 
                     tr.innerHTML = `
@@ -204,7 +202,7 @@ class UserController {
             <td>${Utils.dateFormat(dataUser.register)}</td>
             <td>
                 <button type="button" class="btn btn-primary btn-xs btn-flat btn-edit">Editar</button>
-                <button type="button" class="btn btn-danger btn-xs btn-flat btn-cancel">Excluir</button>
+                <button type="button" class="btn btn-danger btn-xs btn-flat btn-delete">Excluir</button>
             </td>`;
 
         this.addEventsTr(tr);
@@ -213,6 +211,16 @@ class UserController {
     }
 
     addEventsTr(tr) {
+
+        tr.querySelector(".btn-delete").addEventListener("click", e => {
+
+            if (confirm("Deseja realmente excluir")) {
+
+                tr.remove();
+                this.updateCount();
+
+            }
+        });
 
         tr.querySelector(".btn-edit").addEventListener("click", e => {
 
