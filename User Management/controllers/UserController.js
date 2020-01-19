@@ -1,9 +1,80 @@
 class UserController {
-    constructor(formId, tableId) {
-        this.formEl = document.getElementById(formId);
+    constructor(formIdCreate, formIdUpdate, tableId) {
+        this.formEl = document.getElementById(formIdCreate);
+        this.formUpdateEl = document.getElementById(formIdUpdate);
         this.tableEl = document.getElementById(tableId);
 
         this.onSubmit();
+        this.onEdit();
+    }
+
+    onEdit() {
+        const btnCancelar = document.querySelector("#box-user-update .btn-cancel");
+        if (btnCancelar) {
+
+            btnCancelar.addEventListener("click", e => {
+
+                this.showPanelCreate();
+            });
+        }
+
+        this.formUpdateEl.addEventListener("submit", ev => {
+            ev.preventDefault(); //cancela o comportamento padrão do form, não vai atualizar a pagina
+            let btn = this.formUpdateEl.querySelector("[type=submit]");
+
+            btn.disabled = true;
+
+            let values = this.getValues(this.formUpdateEl);
+
+            let index = this.formUpdateEl.dataset.trIndex;
+
+            let tr = this.tableEl.rows[index];
+
+            let userOld = JSON.parse(tr.dataset.user);
+
+            let result = Object.assign({}, userOld, values);
+
+            this.getPhoto(this.formUpdateEl).then(
+                (content) => {
+
+                    if (!values.photo) {
+
+                        result._photo = userOld._photo;
+
+                    }else {
+
+                        result._photo = content;
+                    }
+                    
+                    tr.dataset.user = JSON.stringify(result);
+
+                    tr.innerHTML = `
+                    <td><img src="${result._photo}" alt="User Image" class="img-circle img-sm"></td>
+                    <td>${result._name}</td>
+                    <td>${result._email}</td>
+                    <td>${(result._admin) ? 'Sim' : 'Não'}</td>
+                    <td>${Utils.dateFormat(result._register)}</td>
+                    <td>
+                        <button type="button" class="btn btn-primary btn-xs btn-flat btn-edit">Editar</button>
+                        <button type="button" class="btn btn-danger btn-xs btn-flat btn-cancel">Excluir</button>
+                    </td>`;
+
+                    this.addEventsTr(tr);
+
+                    this.updateCount();
+
+                    btn.disabled = false;
+
+                    this.formUpdateEl.reset();
+
+                    this.showPanelCreate();
+
+                },
+                (e) => {
+                    console.error(e);
+
+                });
+        });
     }
 
     onSubmit() {
@@ -15,11 +86,11 @@ class UserController {
 
             btn.disabled = true;
 
-            let values = this.getValues();
+            let values = this.getValues(this.formEl);
 
             if (!values) { return false; }
 
-            this.getPhoto().then(
+            this.getPhoto(this.formEl).then(
                 (content) => {
 
                     values.photo = content;
@@ -39,14 +110,14 @@ class UserController {
 
     }
 
-    getPhoto() {
+    getPhoto(form) {
 
         return new Promise((resolve, reject) => {
 
 
             let fileReader = new FileReader();
 
-            let elements = [...this.formEl.elements].filter(item => {
+            let elements = [...form.elements].filter(item => {
 
                 if (item.name === 'photo') {
                     return item;
@@ -77,11 +148,11 @@ class UserController {
 
     }
 
-    getValues() {
+    getValues(form) {
         let user = {};
         let isValid = true;
         //Spread
-        [...this.formEl.elements].forEach(item => {
+        [...form.elements].forEach(item => {
             if (["name", "email", "password"].indexOf(item.name) > -1 && !item.value) {
 
                 item.parentElement.classList.add("has-error");
@@ -132,12 +203,63 @@ class UserController {
             <td>${(dataUser.admin) ? 'Sim' : 'Não'}</td>
             <td>${Utils.dateFormat(dataUser.register)}</td>
             <td>
-                <button type="button" class="btn btn-primary btn-xs btn-flat">Editar</button>
-                <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
+                <button type="button" class="btn btn-primary btn-xs btn-flat btn-edit">Editar</button>
+                <button type="button" class="btn btn-danger btn-xs btn-flat btn-cancel">Excluir</button>
             </td>`;
 
+        this.addEventsTr(tr);
         this.tableEl.appendChild(tr);
         this.updateCount();
+    }
+
+    addEventsTr(tr) {
+
+        tr.querySelector(".btn-edit").addEventListener("click", e => {
+
+            let json = JSON.parse(tr.dataset.user);
+
+            this.formUpdateEl.dataset.trIndex = tr.sectionRowIndex;
+            for (let name in json) {
+
+                let campo = this.formUpdateEl.querySelector("[name=" + name.replace("_", "") + "]");
+
+                if (campo) {
+                    switch (campo.type) {
+
+                        case 'file':
+                            continue;
+                            break;
+
+                        case 'radio':
+                            campo = this.formUpdateEl.querySelector("[name=" + name.replace("_", "") + "][value=" + json[name] + "]");
+                            campo.checked = true;
+                            break;
+
+                        case 'checkbox':
+                            campo.checked = json[name];
+                            break;
+
+                        default:
+                            campo.value = json[name];
+
+                    }
+                }
+            }
+
+            this.formUpdateEl.querySelector(".photo").src = json._photo
+            this.showPanelUpdate();
+
+        });
+    }
+
+    showPanelUpdate() {
+        document.querySelector("#box-user-create").style.display = "none";
+        document.querySelector("#box-user-update").style.display = "block";
+    }
+
+    showPanelCreate() {
+        document.querySelector("#box-user-update").style.display = "none";
+        document.querySelector("#box-user-create").style.display = "block";
     }
 
     updateCount() {
@@ -157,6 +279,6 @@ class UserController {
 
         document.querySelector("#number-users").innerHTML = numberUsers;
         document.querySelector("#number-users-admin").innerHTML = numberAdmin;
-        
+
     }
 }
