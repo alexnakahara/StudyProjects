@@ -107,7 +107,8 @@ class User {
                Object.assign(u, this);
 
             }
-
+            console.log('u do map', u);
+            
             return u;
 
          });
