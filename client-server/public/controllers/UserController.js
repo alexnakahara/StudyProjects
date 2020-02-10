@@ -51,7 +51,7 @@ class UserController {
                     user.save();
 
                     this.getTr(user, tr);
-                   
+
                     this.updateCount();
 
                     btn.disabled = false;
@@ -185,21 +185,44 @@ class UserController {
     }
 
     selectAll() {
-        let users = User.getUsersStorage();
+        //let users = User.getUsersStorage();
 
-        users.forEach(dataUser => {
+        let ajax = new XMLHttpRequest();
 
-            let user = new User();
-            user.loadFromJSON(dataUser);
-            this.addLine(user);
+        ajax.open('GET', '/users');
 
-        });
+        ajax.onload = event => {
+
+            let obj = { users: [] };
+
+             try {
+                 
+                obj = JSON.parse(ajax.responseText);
+
+            } catch (e) {
+                console.error(e);
+
+            }
+
+
+            obj.users.forEach(dataUser => {
+
+                let user = new User();
+                user.loadFromJSON(dataUser);
+                this.addLine(user);
+
+            });
+
+        };
+
+        ajax.send();
+
     }
 
     addLine(dataUser) {
 
         let tr = this.getTr(dataUser);
-        
+
         this.tableEl.appendChild(tr);
 
         this.updateCount();
@@ -207,9 +230,9 @@ class UserController {
 
     getTr(dataUser, tr = null) {
 
-       if (tr === null) tr = document.createElement("tr");
+        if (tr === null) tr = document.createElement("tr");
 
-       tr.dataset.user = JSON.stringify(dataUser);
+        tr.dataset.user = JSON.stringify(dataUser);
 
         tr.innerHTML = `
         <td><img src="${dataUser.photo}" alt="User Image" class="img-circle img-sm"></td>
