@@ -9,7 +9,7 @@ module.exports = (app) => {
     let route = app.route('/users');
 
     route.get((req, res) => {
-        db.find({}).sort({ name: 1 }).exec((err, users) => {
+        db.find({}).sort({ _name: 1 }).exec((err, users) => {
             if (err) {
                 app.utils.error.send(err, req, res);
             } else {
@@ -23,8 +23,8 @@ module.exports = (app) => {
     });
 
     route.post([
-        check('name', 'O nome é obrigatorio.').notEmpty(),
-        check('email', 'O e-mail está inválido.').isEmail().notEmpty()
+        check('_name', 'O nome é obrigatorio.').notEmpty(),
+        check('_email', 'O e-mail está inválido.').isEmail().notEmpty()
 
     ], (req, res) => {
         let errors = validationResult(req);
@@ -55,8 +55,8 @@ module.exports = (app) => {
     });
 
     routeId.put([
-        check('name', 'O nome é obrigatorio.').notEmpty(),
-        check('email', 'O e-mail está inválido.').isEmail().notEmpty()
+        check('_name', 'O nome é obrigatorio.').notEmpty(),
+        check('_email', 'O e-mail está inválido.').isEmail().notEmpty()
 
     ], (req, res) => {
         let errors = validationResult(req);
