@@ -60,8 +60,8 @@ class User {
                break;
 
             default:
-               this[name] = dataJson[name];
-
+               if (name.substring(0, 1) === '_')
+                  this[name] = dataJson[name];
          }
       }
    }
