@@ -71,23 +71,6 @@ class User {
       return HttpRequest.get('/users');
    }
 
-   getNewId() {
-
-      let usersID = parseInt(localStorage.getItem("usersID"));
-
-      if (!usersID > 0) {
-
-         usersID = 0;
-
-      }
-
-      usersID++;
-
-      localStorage.setItem("usersID", usersID);
-
-      return usersID;
-   }
-
    toJson() {
       let json = {};
       Object.keys(this).forEach(key => {
