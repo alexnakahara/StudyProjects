@@ -68,7 +68,7 @@ class User {
 
    static getUsers() {
 
-      return HttpRequest.get('/users');
+      return Fetch.get('/users');
    }
 
    toJson() {
@@ -88,9 +88,9 @@ class User {
          let promise;
 
          if (this.id) {
-            promise = HttpRequest.put('/users/' + this.id, this.toJson());
+            promise = Fetch.put('/users/' + this.id, this.toJson());
          } else {
-            promise = HttpRequest.post('/users/', this.toJson());
+            promise = Fetch.post('/users/', this.toJson());
 
          }
 
@@ -105,6 +105,6 @@ class User {
    }
 
    remove() {
-    return HttpRequest.delete('/users/' + this.id);
+    return Fetch.delete('/users/' + this.id);
    }
 }
